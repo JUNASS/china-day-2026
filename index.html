@@ -1,64 +1,6 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mirae Asset | China Day 2026</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/file-saver.js/2.0.5/FileSaver.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
-        body { font-family: 'Noto Sans KR', sans-serif; word-break: keep-all; }
-    </style>
-</head>
-<body class="bg-gray-100 min-h-screen">
-    <div class="max-w-md mx-auto py-10 px-4">
-        <div class="text-center mb-8">
-            <h1 class="text-2xl font-black text-blue-900 tracking-tight">CHINA DAY 2026</h1>
-            <p class="text-gray-500 text-sm mt-1">Mirae Asset Securities Global Equity</p>
-        </div>
-
-        <div id="login-section" class="bg-white p-8 rounded-3xl shadow-xl border border-white">
-            <h2 class="text-lg font-bold mb-6 text-gray-800">본인 확인을 위해<br>성함을 입력해주세요</h2>
-            <input id="userName" type="text" class="w-full p-4 bg-gray-50 border-0 rounded-2xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none text-lg" placeholder="성함 또는 Name">
-            <button onclick="renderSchedule()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-95 transition">조회하기</button>
-        </div>
-
-        <div id="schedule-section" class="hidden animate-fade-in">
-            <div id="capture-area" class="bg-white p-6 rounded-3xl shadow-xl border border-white mb-6">
-                <div class="flex justify-between items-start mb-6 border-b border-gray-100 pb-4">
-                    <div>
-                        <h2 id="display-name" class="text-xl font-bold text-gray-900"></h2>
-                        <p id="display-co" class="text-sm text-blue-600 font-medium mt-1"></p>
-                    </div>
-                    <img src="https://gmis.miraeasset.com/images/favicon/favicon-32x32.png" class="w-6 h-6 opacity-50">
-                </div>
-                
-                <div id="schedule-list" class="space-y-4">
-                    </div>
-                
-                <p class="text-[10px] text-gray-300 mt-8 text-center italic">© 2026 Mirae Asset Securities Global Equity Solution Team</p>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="saveAsImage()" class="bg-gray-900 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    이미지 저장
-                </button>
-                <button onclick="exportToICS()" class="bg-blue-600 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    캘린더 추가
-                </button>
-            </div>
-            
-            <button onclick="location.reload()" class="w-full text-gray-400 text-sm mt-8 underline">다른 이름으로 조회</button>
-        </div>
-    </div>
-
-    <script>
-        // 변환된 데이터 (총 15개 엔트리 반영)
-        const MASTER_DATA = [
+<script>
+    // 변환된 데이터
+    const MASTER_DATA = [
     {
         "ko_name": "박신영",
         "en_name": "Shinyoung PARK",
@@ -3093,63 +3035,204 @@
     }
 ];
 
-        function renderSchedule() {
-            const input = document.getElementById('userName').value.trim().toLowerCase();
-            if(!input) return;
+    function normalizeText(str) {
+        return (str || "").trim().toLowerCase();
+    }
 
-            const filtered = MASTER_DATA.filter(d => 
-                d.ko_name === input || d.en_name.toLowerCase() === input
-            ).sort((a,b) => a.time.localeCompare(b.time));
+    function isMobileDevice() {
+        return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+    }
 
-            if (filtered.length === 0) {
-                alert("등록된 스케줄이 없습니다.");
+    function findUserSchedule() {
+        const rawInput = document.getElementById('userName').value;
+        const input = normalizeText(rawInput);
+
+        if (!input) return [];
+
+        return MASTER_DATA.filter(d =>
+            normalizeText(d.ko_name) === input ||
+            normalizeText(d.en_name) === input
+        ).sort((a, b) => a.time.localeCompare(b.time));
+    }
+
+    function renderSchedule() {
+        const filtered = findUserSchedule();
+
+        if (filtered.length === 0) {
+            alert("등록된 스케줄이 없습니다.");
+            return;
+        }
+
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('schedule-section').classList.remove('hidden');
+
+        const user = filtered[0];
+        document.getElementById('display-name').innerText = `${user.ko_name} (${user.en_name})`;
+        document.getElementById('display-co').innerText = `${user.ko_co} | ${user.en_co}`;
+
+        let html = '';
+        filtered.forEach(item => {
+            html += `
+                <div class="flex items-center p-4 bg-gray-50 rounded-2xl border border-gray-100 shadow-sm">
+                    <div class="w-24 text-sm font-bold text-gray-400 border-r border-gray-200 mr-4">${item.time}</div>
+                    <div class="flex-1">
+                        <div class="text-xs text-blue-500 font-bold mb-1">Meeting with</div>
+                        <div class="text-lg font-black text-gray-800">${item.item}</div>
+                    </div>
+                </div>
+            `;
+        });
+
+        document.getElementById('schedule-list').innerHTML = html;
+    }
+
+    function formatSafeFileName(name) {
+        return name.replace(/[\\\/:*?"<>|]/g, '_');
+    }
+
+    function saveAsImage() {
+        const area = document.getElementById('capture-area');
+        const displayName = document.getElementById('display-name').innerText || 'Schedule';
+        const safeFileName = formatSafeFileName(`ChinaDay_Schedule_${displayName}.png`);
+
+        html2canvas(area, {
+            backgroundColor: '#f3f4f6',
+            scale: 2,
+            useCORS: true
+        }).then(canvas => {
+            // PC: 바로 다운로드
+            if (!isMobileDevice()) {
+                canvas.toBlob(blob => {
+                    if (!blob) {
+                        alert("이미지 생성에 실패했습니다.");
+                        return;
+                    }
+                    saveAs(blob, safeFileName);
+                }, 'image/png');
                 return;
             }
 
-            document.getElementById('login-section').classList.add('hidden');
-            document.getElementById('schedule-section').classList.remove('hidden');
-            
-            const user = filtered[0];
-            document.getElementById('display-name').innerText = `${user.ko_name} (${user.en_name})`;
-            document.getElementById('display-co').innerText = `${user.ko_co} | ${user.en_co}`;
+            // 모바일: 새 탭/새 창에 이미지 표시 -> 길게 눌러 저장
+            const dataUrl = canvas.toDataURL('image/png');
+            const newWindow = window.open('', '_blank');
 
-            let html = '';
-            filtered.forEach(item => {
-                html += `
-                    <div class="flex items-center p-4 bg-gray-50 rounded-2xl border border-gray-100 shadow-sm">
-                        <div class="w-24 text-sm font-bold text-gray-400 border-r border-gray-200 mr-4">${item.time}</div>
-                        <div class="flex-1">
-                            <div class="text-xs text-blue-500 font-bold mb-1">Meeting with</div>
-                            <div class="text-lg font-black text-gray-800">${item.item}</div>
-                        </div>
-                    </div>
-                `;
-            });
-            document.getElementById('schedule-list').innerHTML = html;
+            if (!newWindow) {
+                alert("팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.");
+                return;
+            }
+
+            newWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="ko">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>이미지 저장</title>
+                    <style>
+                        body {
+                            margin: 0;
+                            background: #111;
+                            color: #fff;
+                            font-family: Arial, sans-serif;
+                            text-align: center;
+                        }
+                        .guide {
+                            position: sticky;
+                            top: 0;
+                            background: rgba(0,0,0,0.85);
+                            padding: 12px 16px;
+                            font-size: 14px;
+                            z-index: 10;
+                        }
+                        img {
+                            display: block;
+                            width: 100%;
+                            height: auto;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="guide">이미지를 길게 눌러 저장하세요</div>
+                    <img src="${dataUrl}" alt="Schedule Image">
+                </body>
+                </html>
+            `);
+            newWindow.document.close();
+        }).catch(() => {
+            alert("이미지 저장 중 오류가 발생했습니다.");
+        });
+    }
+
+    function buildICSContent(filtered) {
+        let ics = "BEGIN:VCALENDAR\r\n";
+        ics += "VERSION:2.0\r\n";
+        ics += "PRODID:-//Mirae Asset//China Day 2026//KO\r\n";
+        ics += "CALSCALE:GREGORIAN\r\n";
+        ics += "METHOD:PUBLISH\r\n";
+
+        filtered.forEach((item, idx) => {
+            const start = item.time.split('~')[0].replace(':', '') + "00";
+            const end = item.time.split('~')[1].replace(':', '') + "00";
+
+            // KST 기준으로 local time 표기
+            ics += "BEGIN:VEVENT\r\n";
+            ics += `UID:china-day-2026-${idx}-${Date.now()}@miraeasset\r\n`;
+            ics += `DTSTAMP:20260409T000000Z\r\n`;
+            ics += `SUMMARY:[China Day] Meeting with ${item.item}\r\n`;
+            ics += `DTSTART:20260409T${start}\r\n`;
+            ics += `DTEND:20260409T${end}\r\n`;
+            ics += `LOCATION:Meeting Room\r\n`;
+            ics += `DESCRIPTION:China Day 2026 meeting schedule for ${item.ko_name} (${item.en_name})\r\n`;
+            ics += "END:VEVENT\r\n";
+        });
+
+        ics += "END:VCALENDAR";
+        return ics;
+    }
+
+    function downloadICSOnPC(icsContent, fileName) {
+        const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+        saveAs(blob, fileName);
+    }
+
+    function openICSOnMobile(icsContent) {
+        // 모바일에서는 blob 다운로드보다 data URI / 새창 표시가 더 안정적
+        const dataUri = "data:text/calendar;charset=utf-8," + encodeURIComponent(icsContent);
+        const newWindow = window.open(dataUri, '_blank');
+
+        if (!newWindow) {
+            alert("팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.");
+        }
+    }
+
+    function exportToICS() {
+        const filtered = findUserSchedule();
+
+        if (filtered.length === 0) {
+            alert("등록된 스케줄이 없습니다.");
+            return;
         }
 
-        function saveAsImage() {
-            const area = document.getElementById('capture-area');
-            html2canvas(area, { backgroundColor: '#f3f4f6', scale: 2 }).then(canvas => {
-                canvas.toBlob(blob => saveAs(blob, `ChinaDay_Schedule_${document.getElementById('display-name').innerText}.png`));
-            });
-        }
+        const displayName = document.getElementById('display-name').innerText || 'Schedule';
+        const safeFileName = formatSafeFileName(`ChinaDay_Schedule_${displayName}.ics`);
+        const icsContent = buildICSContent(filtered);
 
-        function exportToICS() {
-            const input = document.getElementById('userName').value.trim();
-            const filtered = MASTER_DATA.filter(d => d.ko_name === input || d.en_name === input);
-            
-            let ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Mirae Asset//China Day 2026//KO\n";
-            filtered.forEach(item => {
-                const start = item.time.split('~')[0].replace(':','') + "00";
-                const end = item.time.split('~')[1].replace(':','') + "00";
-                ics += `BEGIN:VEVENT\nSUMMARY:[China Day] Meeting with ${item.item}\nDTSTART:20260409T${start}\nDTEND:20260409T${end}\nLOCATION:Meeting Room\nEND:VEVENT\n`;
-            });
-            ics += "END:VCALENDAR";
-            
-            const blob = new Blob([ics], {type: "text/calendar;charset=utf-8"});
-            saveAs(blob, "ChinaDay_Schedule.ics");
+        if (isMobileDevice()) {
+            openICSOnMobile(icsContent);
+        } else {
+            downloadICSOnPC(icsContent, safeFileName);
         }
-    </script>
-</body>
-</html>
+    }
+
+    // 엔터키로도 조회되게
+    document.addEventListener('DOMContentLoaded', function() {
+        const input = document.getElementById('userName');
+        if (input) {
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    renderSchedule();
+                }
+            });
+        }
+    });
+</script>
