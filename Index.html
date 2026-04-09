@@ -1,0 +1,3155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mirae Asset | China Day 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/file-saver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+        body { font-family: 'Noto Sans KR', sans-serif; word-break: keep-all; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="max-w-md mx-auto py-10 px-4">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-black text-blue-900 tracking-tight">CHINA DAY 2026</h1>
+            <p class="text-gray-500 text-sm mt-1">Mirae Asset Securities Global Equity</p>
+        </div>
+
+        <div id="login-section" class="bg-white p-8 rounded-3xl shadow-xl border border-white">
+            <h2 class="text-lg font-bold mb-6 text-gray-800">본인 확인을 위해<br>성함을 입력해주세요</h2>
+            <input id="userName" type="text" class="w-full p-4 bg-gray-50 border-0 rounded-2xl mb-4 focus:ring-2 focus:ring-blue-500 outline-none text-lg" placeholder="성함 또는 Name">
+            <button onclick="renderSchedule()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-95 transition">조회하기</button>
+        </div>
+
+        <div id="schedule-section" class="hidden animate-fade-in">
+            <div id="capture-area" class="bg-white p-6 rounded-3xl shadow-xl border border-white mb-6">
+                <div class="flex justify-between items-start mb-6 border-b border-gray-100 pb-4">
+                    <div>
+                        <h2 id="display-name" class="text-xl font-bold text-gray-900"></h2>
+                        <p id="display-co" class="text-sm text-blue-600 font-medium mt-1"></p>
+                    </div>
+                    <img src="https://gmis.miraeasset.com/images/favicon/favicon-32x32.png" class="w-6 h-6 opacity-50">
+                </div>
+                
+                <div id="schedule-list" class="space-y-4">
+                    </div>
+                
+                <p class="text-[10px] text-gray-300 mt-8 text-center italic">© 2026 Mirae Asset Securities Global Equity Solution Team</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="saveAsImage()" class="bg-gray-900 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    이미지 저장
+                </button>
+                <button onclick="exportToICS()" class="bg-blue-600 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    캘린더 추가
+                </button>
+            </div>
+            
+            <button onclick="location.reload()" class="w-full text-gray-400 text-sm mt-8 underline">다른 이름으로 조회</button>
+        </div>
+    </div>
+
+    <script>
+        // 변환된 데이터 (총 15개 엔트리 반영)
+        const MASTER_DATA = [
+    {
+        "ko_name": "박신영",
+        "en_name": "Shinyoung PARK",
+        "ko_co": "CMS증권",
+        "en_co": "CMS Securities",
+        "item": "Minimax",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "박신영",
+        "en_name": "Shinyoung PARK",
+        "ko_co": "CMS증권",
+        "en_co": "CMS Securities",
+        "item": "Biren",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "박신영",
+        "en_name": "Shinyoung PARK",
+        "ko_co": "CMS증권",
+        "en_co": "CMS Securities",
+        "item": "BrainCo",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "박신영",
+        "en_name": "Shinyoung PARK",
+        "ko_co": "CMS증권",
+        "en_co": "CMS Securities",
+        "item": "Momenta",
+        "time": "09:00~09:50"
+    },
+    {
+        "ko_name": "박신영",
+        "en_name": "Shinyoung PARK",
+        "ko_co": "CMS증권",
+        "en_co": "CMS Securities",
+        "item": "Creality",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "김민재",
+        "en_name": "Minjae KIM",
+        "ko_co": "CMS증권",
+        "en_co": "CMS Securities",
+        "item": "Minimax",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "김민재",
+        "en_name": "Minjae KIM",
+        "ko_co": "CMS증권",
+        "en_co": "CMS Securities",
+        "item": "Biren",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "김민재",
+        "en_name": "Minjae KIM",
+        "ko_co": "CMS증권",
+        "en_co": "CMS Securities",
+        "item": "BrainCo",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "김민재",
+        "en_name": "Minjae KIM",
+        "ko_co": "CMS증권",
+        "en_co": "CMS Securities",
+        "item": "Momenta",
+        "time": "09:00~09:50"
+    },
+    {
+        "ko_name": "김민재",
+        "en_name": "Minjae KIM",
+        "ko_co": "CMS증권",
+        "en_co": "CMS Securities",
+        "item": "Creality",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "Simon Jung",
+        "en_name": "Simon JUNG",
+        "ko_co": "Delta Flex",
+        "en_co": "Delta Flex",
+        "item": "Minimax",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "Simon Jung",
+        "en_name": "Simon JUNG",
+        "ko_co": "Delta Flex",
+        "en_co": "Delta Flex",
+        "item": "Biren",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "Simon Jung",
+        "en_name": "Simon JUNG",
+        "ko_co": "Delta Flex",
+        "en_co": "Delta Flex",
+        "item": "Momenta",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "정동호",
+        "en_name": "Dongho JUNG",
+        "ko_co": "Dymon Asia",
+        "en_co": "Dymon Asia",
+        "item": "Minimax",
+        "time": "09:00~09:50"
+    },
+    {
+        "ko_name": "정동호",
+        "en_name": "Dongho JUNG",
+        "ko_co": "Dymon Asia",
+        "en_co": "Dymon Asia",
+        "item": "Biren",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "정동호",
+        "en_name": "Dongho JUNG",
+        "ko_co": "Dymon Asia",
+        "en_co": "Dymon Asia",
+        "item": "BrainCo",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "정동호",
+        "en_name": "Dongho JUNG",
+        "ko_co": "Dymon Asia",
+        "en_co": "Dymon Asia",
+        "item": "Xiaomi",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "김아영",
+        "en_name": "Ayoung KIM",
+        "ko_co": "KB자산운용",
+        "en_co": "KB AM",
+        "item": "Minimax",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "김아영",
+        "en_name": "Ayoung KIM",
+        "ko_co": "KB자산운용",
+        "en_co": "KB AM",
+        "item": "Biren",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "김아영",
+        "en_name": "Ayoung KIM",
+        "ko_co": "KB자산운용",
+        "en_co": "KB AM",
+        "item": "BrainCo",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "김아영",
+        "en_name": "Ayoung KIM",
+        "ko_co": "KB자산운용",
+        "en_co": "KB AM",
+        "item": "XREAL",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "김아영",
+        "en_name": "Ayoung KIM",
+        "ko_co": "KB자산운용",
+        "en_co": "KB AM",
+        "item": "Xiaomi",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "김빈나",
+        "en_name": "Binna KIM",
+        "ko_co": "KB자산운용",
+        "en_co": "KB AM",
+        "item": "Alibaba",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "김빈나",
+        "en_name": "Binna KIM",
+        "ko_co": "KB자산운용",
+        "en_co": "KB AM",
+        "item": "Minimax",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "김빈나",
+        "en_name": "Binna KIM",
+        "ko_co": "KB자산운용",
+        "en_co": "KB AM",
+        "item": "Biren",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "김빈나",
+        "en_name": "Binna KIM",
+        "ko_co": "KB자산운용",
+        "en_co": "KB AM",
+        "item": "Xiaomi",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "김빈나",
+        "en_name": "Binna KIM",
+        "ko_co": "KB자산운용",
+        "en_co": "KB AM",
+        "item": "Momenta",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "손하연",
+        "en_name": "Hayeon SON",
+        "ko_co": "KB자산운용",
+        "en_co": "KB AM",
+        "item": "Alibaba",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "손하연",
+        "en_name": "Hayeon SON",
+        "ko_co": "KB자산운용",
+        "en_co": "KB AM",
+        "item": "Minimax",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "손하연",
+        "en_name": "Hayeon SON",
+        "ko_co": "KB자산운용",
+        "en_co": "KB AM",
+        "item": "Biren",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "손하연",
+        "en_name": "Hayeon SON",
+        "ko_co": "KB자산운용",
+        "en_co": "KB AM",
+        "item": "Xiaomi",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "손하연",
+        "en_name": "Hayeon SON",
+        "ko_co": "KB자산운용",
+        "en_co": "KB AM",
+        "item": "Momenta",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "강형준",
+        "en_name": "Hyunjun KANG",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "Minimax",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "강형준",
+        "en_name": "Hyunjun KANG",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "Biren",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "강형준",
+        "en_name": "Hyunjun KANG",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "BrainCo",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "강형준",
+        "en_name": "Hyunjun KANG",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "XREAL",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "강형준",
+        "en_name": "Hyunjun KANG",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "Creality",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "강영수",
+        "en_name": "Youngsoo KANG",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "Minimax",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "강영수",
+        "en_name": "Youngsoo KANG",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "Biren",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "강영수",
+        "en_name": "Youngsoo KANG",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "BrainCo",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "강영수",
+        "en_name": "Youngsoo KANG",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "XREAL",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "강영수",
+        "en_name": "Youngsoo KANG",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "Creality",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "김용준",
+        "en_name": "Yongjun KIM",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "Minimax",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "김용준",
+        "en_name": "Yongjun KIM",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "Biren",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "김용준",
+        "en_name": "Yongjun KIM",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "BrainCo",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "김용준",
+        "en_name": "Yongjun KIM",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "XREAL",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "김용준",
+        "en_name": "Yongjun KIM",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "Creality",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "김재혁",
+        "en_name": "Jaehyuk KIM",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "Minimax",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "김재혁",
+        "en_name": "Jaehyuk KIM",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "Biren",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "김재혁",
+        "en_name": "Jaehyuk KIM",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "BrainCo",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "김재혁",
+        "en_name": "Jaehyuk KIM",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "XREAL",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "김재혁",
+        "en_name": "Jaehyuk KIM",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "Creality",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "조성주",
+        "en_name": "Sungjoo CHO",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "Minimax",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "조성주",
+        "en_name": "Sungjoo CHO",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "Biren",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "조성주",
+        "en_name": "Sungjoo CHO",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "BrainCo",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "조성주",
+        "en_name": "Sungjoo CHO",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "XREAL",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "조성주",
+        "en_name": "Sungjoo CHO",
+        "ko_co": "KCGI자산운용",
+        "en_co": "KCGI AM",
+        "item": "Creality",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "김지은",
+        "en_name": "Jieun KIM",
+        "ko_co": "NH아문디자산운용",
+        "en_co": "NH-Amundi AM",
+        "item": "Momenta",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "이세영",
+        "en_name": "Seyoung LEE",
+        "ko_co": "SBVA",
+        "en_co": "SBVA",
+        "item": "Alibaba",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "이세영",
+        "en_name": "Seyoung LEE",
+        "ko_co": "SBVA",
+        "en_co": "SBVA",
+        "item": "Minimax",
+        "time": "09:00~09:50"
+    },
+    {
+        "ko_name": "이세영",
+        "en_name": "Seyoung LEE",
+        "ko_co": "SBVA",
+        "en_co": "SBVA",
+        "item": "BrainCo",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "이세영",
+        "en_name": "Seyoung LEE",
+        "ko_co": "SBVA",
+        "en_co": "SBVA",
+        "item": "XREAL",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "이세영",
+        "en_name": "Seyoung LEE",
+        "ko_co": "SBVA",
+        "en_co": "SBVA",
+        "item": "Momenta",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "이세영",
+        "en_name": "Seyoung LEE",
+        "ko_co": "SBVA",
+        "en_co": "SBVA",
+        "item": "Creality",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "이세영",
+        "en_name": "Seyoung LEE",
+        "ko_co": "SBVA",
+        "en_co": "SBVA",
+        "item": "Insta360",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "김현지",
+        "en_name": "Hyunji KIM",
+        "ko_co": "교보악사",
+        "en_co": "Kyobo AXA AM",
+        "item": "Alibaba",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "김현지",
+        "en_name": "Hyunji KIM",
+        "ko_co": "교보악사",
+        "en_co": "Kyobo AXA AM",
+        "item": "Minimax",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "김현지",
+        "en_name": "Hyunji KIM",
+        "ko_co": "교보악사",
+        "en_co": "Kyobo AXA AM",
+        "item": "Biren",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "김현지",
+        "en_name": "Hyunji KIM",
+        "ko_co": "교보악사",
+        "en_co": "Kyobo AXA AM",
+        "item": "BrainCo",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "김현지",
+        "en_name": "Hyunji KIM",
+        "ko_co": "교보악사",
+        "en_co": "Kyobo AXA AM",
+        "item": "Momenta",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "박태하",
+        "en_name": "Taeha PARK",
+        "ko_co": "구도자산운용",
+        "en_co": "GUDO Investment Management",
+        "item": "Creality",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "박태하",
+        "en_name": "Taeha PARK",
+        "ko_co": "구도자산운용",
+        "en_co": "GUDO Investment Management",
+        "item": "Insta360",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "김종우",
+        "en_name": "Jongwoo KIM",
+        "ko_co": "국민연금",
+        "en_co": "NPS",
+        "item": "Alibaba",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "김종우",
+        "en_name": "Jongwoo KIM",
+        "ko_co": "국민연금",
+        "en_co": "NPS",
+        "item": "Minimax",
+        "time": "09:00~09:50"
+    },
+    {
+        "ko_name": "김종우",
+        "en_name": "Jongwoo KIM",
+        "ko_co": "국민연금",
+        "en_co": "NPS",
+        "item": "Biren",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "김종우",
+        "en_name": "Jongwoo KIM",
+        "ko_co": "국민연금",
+        "en_co": "NPS",
+        "item": "BrainCo",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "김종우",
+        "en_name": "Jongwoo KIM",
+        "ko_co": "국민연금",
+        "en_co": "NPS",
+        "item": "XREAL",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "김종우",
+        "en_name": "Jongwoo KIM",
+        "ko_co": "국민연금",
+        "en_co": "NPS",
+        "item": "Xiaomi",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "김종우",
+        "en_name": "Jongwoo KIM",
+        "ko_co": "국민연금",
+        "en_co": "NPS",
+        "item": "Momenta",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "김병준",
+        "en_name": "Byungjun KIM",
+        "ko_co": "국민연금",
+        "en_co": "NPS",
+        "item": "Alibaba",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "김병준",
+        "en_name": "Byungjun KIM",
+        "ko_co": "국민연금",
+        "en_co": "NPS",
+        "item": "Minimax",
+        "time": "09:00~09:50"
+    },
+    {
+        "ko_name": "김병준",
+        "en_name": "Byungjun KIM",
+        "ko_co": "국민연금",
+        "en_co": "NPS",
+        "item": "Biren",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "김병준",
+        "en_name": "Byungjun KIM",
+        "ko_co": "국민연금",
+        "en_co": "NPS",
+        "item": "BrainCo",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "김병준",
+        "en_name": "Byungjun KIM",
+        "ko_co": "국민연금",
+        "en_co": "NPS",
+        "item": "XREAL",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "김병준",
+        "en_name": "Byungjun KIM",
+        "ko_co": "국민연금",
+        "en_co": "NPS",
+        "item": "Xiaomi",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "이유민",
+        "en_name": "Yoomin LEE",
+        "ko_co": "더제이자산",
+        "en_co": "J&J Investment",
+        "item": "Minimax",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "이유민",
+        "en_name": "Yoomin LEE",
+        "ko_co": "더제이자산",
+        "en_co": "J&J Investment",
+        "item": "BrainCo",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "이유민",
+        "en_name": "Yoomin LEE",
+        "ko_co": "더제이자산",
+        "en_co": "J&J Investment",
+        "item": "XREAL",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "이유민",
+        "en_name": "Yoomin LEE",
+        "ko_co": "더제이자산",
+        "en_co": "J&J Investment",
+        "item": "Momenta",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "이준석",
+        "en_name": "Junseok LEE",
+        "ko_co": "더제이자산",
+        "en_co": "J&J Investment",
+        "item": "Minimax",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "이준석",
+        "en_name": "Junseok LEE",
+        "ko_co": "더제이자산",
+        "en_co": "J&J Investment",
+        "item": "Biren",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "이준석",
+        "en_name": "Junseok LEE",
+        "ko_co": "더제이자산",
+        "en_co": "J&J Investment",
+        "item": "XREAL",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "이준석",
+        "en_name": "Junseok LEE",
+        "ko_co": "더제이자산",
+        "en_co": "J&J Investment",
+        "item": "Xiaomi",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "이준석",
+        "en_name": "Junseok LEE",
+        "ko_co": "더제이자산",
+        "en_co": "J&J Investment",
+        "item": "Momenta",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "김정현",
+        "en_name": "Junghyun KIM",
+        "ko_co": "디에스자산운용",
+        "en_co": "DS AM",
+        "item": "Alibaba",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "김정현",
+        "en_name": "Junghyun KIM",
+        "ko_co": "디에스자산운용",
+        "en_co": "DS AM",
+        "item": "Minimax",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "김정현",
+        "en_name": "Junghyun KIM",
+        "ko_co": "디에스자산운용",
+        "en_co": "DS AM",
+        "item": "Biren",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "김정현",
+        "en_name": "Junghyun KIM",
+        "ko_co": "디에스자산운용",
+        "en_co": "DS AM",
+        "item": "XREAL",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "안영현",
+        "en_name": "Younghyun AHN",
+        "ko_co": "마이다스자산운용",
+        "en_co": "MIDAS AM",
+        "item": "Alibaba",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "안영현",
+        "en_name": "Younghyun AHN",
+        "ko_co": "마이다스자산운용",
+        "en_co": "MIDAS AM",
+        "item": "Minimax",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "안영현",
+        "en_name": "Younghyun AHN",
+        "ko_co": "마이다스자산운용",
+        "en_co": "MIDAS AM",
+        "item": "Biren",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "안영현",
+        "en_name": "Younghyun AHN",
+        "ko_co": "마이다스자산운용",
+        "en_co": "MIDAS AM",
+        "item": "BrainCo",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "안영현",
+        "en_name": "Younghyun AHN",
+        "ko_co": "마이다스자산운용",
+        "en_co": "MIDAS AM",
+        "item": "XREAL",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "안영현",
+        "en_name": "Younghyun AHN",
+        "ko_co": "마이다스자산운용",
+        "en_co": "MIDAS AM",
+        "item": "Momenta",
+        "time": "09:00~09:50"
+    },
+    {
+        "ko_name": "안영현",
+        "en_name": "Younghyun AHN",
+        "ko_co": "마이다스자산운용",
+        "en_co": "MIDAS AM",
+        "item": "Insta360",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "유주형",
+        "en_name": "Joohyung YOO",
+        "ko_co": "마이다스자산운용",
+        "en_co": "MIDAS AM",
+        "item": "Minimax",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "유주형",
+        "en_name": "Joohyung YOO",
+        "ko_co": "마이다스자산운용",
+        "en_co": "MIDAS AM",
+        "item": "BrainCo",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "유주형",
+        "en_name": "Joohyung YOO",
+        "ko_co": "마이다스자산운용",
+        "en_co": "MIDAS AM",
+        "item": "Momenta",
+        "time": "09:00~09:50"
+    },
+    {
+        "ko_name": "오남훈",
+        "en_name": "Namhoon OH",
+        "ko_co": "마이다스자산운용",
+        "en_co": "MIDAS AM",
+        "item": "Alibaba",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "오남훈",
+        "en_name": "Namhoon OH",
+        "ko_co": "마이다스자산운용",
+        "en_co": "MIDAS AM",
+        "item": "Minimax",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "오남훈",
+        "en_name": "Namhoon OH",
+        "ko_co": "마이다스자산운용",
+        "en_co": "MIDAS AM",
+        "item": "Biren",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "오남훈",
+        "en_name": "Namhoon OH",
+        "ko_co": "마이다스자산운용",
+        "en_co": "MIDAS AM",
+        "item": "BrainCo",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "오남훈",
+        "en_name": "Namhoon OH",
+        "ko_co": "마이다스자산운용",
+        "en_co": "MIDAS AM",
+        "item": "XREAL",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "오남훈",
+        "en_name": "Namhoon OH",
+        "ko_co": "마이다스자산운용",
+        "en_co": "MIDAS AM",
+        "item": "Momenta",
+        "time": "09:00~09:50"
+    },
+    {
+        "ko_name": "오남훈",
+        "en_name": "Namhoon OH",
+        "ko_co": "마이다스자산운용",
+        "en_co": "MIDAS AM",
+        "item": "Insta360",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "최은지",
+        "en_name": "Eunji CHOI",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "BrainCo",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "최은지",
+        "en_name": "Eunji CHOI",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "XREAL",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "최은지",
+        "en_name": "Eunji CHOI",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Creality",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "문지현",
+        "en_name": "Jihyun MOON",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Alibaba",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "박창민",
+        "en_name": "Changmin PARK",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Minimax",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "박창민",
+        "en_name": "Changmin PARK",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "BrainCo",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "장재원",
+        "en_name": "Jaewon JANG",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Minimax",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "장재원",
+        "en_name": "Jaewon JANG",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Xiaomi",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "김규연",
+        "en_name": "Gyuyeon KIM",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "BrainCo",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "김규연",
+        "en_name": "Gyuyeon KIM",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "XREAL",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "박용대",
+        "en_name": "Yongdae PARK",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Minimax",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "이운규",
+        "en_name": "Woongyu LEE",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Biren",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "이운규",
+        "en_name": "Woongyu LEE",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Insta360",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "박준범",
+        "en_name": "Junbeom PARK",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Alibaba",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "박준범",
+        "en_name": "Junbeom PARK",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Xiaomi",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "박준범",
+        "en_name": "Junbeom PARK",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Creality",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "정채범",
+        "en_name": "Chaebeom JUNG",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Minimax",
+        "time": "09:00~09:50"
+    },
+    {
+        "ko_name": "정채범",
+        "en_name": "Chaebeom JUNG",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "BrainCo",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "오해민",
+        "en_name": "Haemin OH",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Alibaba",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "오해민",
+        "en_name": "Haemin OH",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "XREAL",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "오해민",
+        "en_name": "Haemin OH",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Momenta",
+        "time": "09:00~09:50"
+    },
+    {
+        "ko_name": "류혜령",
+        "en_name": "Hyeryeong RYU",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Biren",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "류혜령",
+        "en_name": "Hyeryeong RYU",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Creality",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "강민희",
+        "en_name": "Minhee KANG",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Minimax",
+        "time": "09:00~09:50"
+    },
+    {
+        "ko_name": "강민희",
+        "en_name": "Minhee KANG",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Biren",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "강민희",
+        "en_name": "Minhee KANG",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "XREAL",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "강민희",
+        "en_name": "Minhee KANG",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Xiaomi",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "강민희",
+        "en_name": "Minhee KANG",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Momenta",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "강민희",
+        "en_name": "Minhee KANG",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Creality",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "이채영",
+        "en_name": "Chaeyoung LEE",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "BrainCo",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "장다현",
+        "en_name": "Dahyun JANG",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Minimax",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "정세훈",
+        "en_name": "Sehoon JUNG",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Minimax",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "정세훈",
+        "en_name": "Sehoon JUNG",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Biren",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "박연주",
+        "en_name": "Yeonjoo PARK",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Alibaba",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "박연주",
+        "en_name": "Yeonjoo PARK",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Minimax",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "박연주",
+        "en_name": "Yeonjoo PARK",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Xiaomi",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "박수진",
+        "en_name": "Soojin PARK",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Alibaba",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "박수진",
+        "en_name": "Soojin PARK",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Minimax",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "박수진",
+        "en_name": "Soojin PARK",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Biren",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "박수진",
+        "en_name": "Soojin PARK",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Xiaomi",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "서미화",
+        "en_name": "Mihwa SEO",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "BrainCo",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "서미화",
+        "en_name": "Mihwa SEO",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Creality",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "한종목",
+        "en_name": "Jongmok HAN",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Minimax",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "한종목",
+        "en_name": "Jongmok HAN",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Biren",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "한종목",
+        "en_name": "Jongmok HAN",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Momenta",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "유건호",
+        "en_name": "Geonho YOO",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Minimax",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "유건호",
+        "en_name": "Geonho YOO",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Biren",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "권영배",
+        "en_name": "Youngbae KWON",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Alibaba",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "권영배",
+        "en_name": "Youngbae KWON",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Minimax",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "권영배",
+        "en_name": "Youngbae KWON",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "BrainCo",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "권영배",
+        "en_name": "Youngbae KWON",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Xiaomi",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "이인구",
+        "en_name": "Ingoo LEE",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Alibaba",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "이인구",
+        "en_name": "Ingoo LEE",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Biren",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "이인구",
+        "en_name": "Ingoo LEE",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "BrainCo",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "이인구",
+        "en_name": "Ingoo LEE",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Xiaomi",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "유원재",
+        "en_name": "Wonjae YOO",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "BrainCo",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "유원재",
+        "en_name": "Wonjae YOO",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Xiaomi",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "유원재",
+        "en_name": "Wonjae YOO",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Momenta",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "유원재",
+        "en_name": "Wonjae YOO",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Creality",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "유원재",
+        "en_name": "Wonjae YOO",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Insta360",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "김현태",
+        "en_name": "Hyuntae KIM",
+        "ko_co": "미래자산",
+        "en_co": "Mirae Asset Global Investments",
+        "item": "Alibaba",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "김현태",
+        "en_name": "Hyuntae KIM",
+        "ko_co": "미래자산",
+        "en_co": "Mirae Asset Global Investments",
+        "item": "Minimax",
+        "time": "09:00~09:50"
+    },
+    {
+        "ko_name": "김현태",
+        "en_name": "Hyuntae KIM",
+        "ko_co": "미래자산",
+        "en_co": "Mirae Asset Global Investments",
+        "item": "Biren",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "김현태",
+        "en_name": "Hyuntae KIM",
+        "ko_co": "미래자산",
+        "en_co": "Mirae Asset Global Investments",
+        "item": "BrainCo",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "김현태",
+        "en_name": "Hyuntae KIM",
+        "ko_co": "미래자산",
+        "en_co": "Mirae Asset Global Investments",
+        "item": "XREAL",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "김현태",
+        "en_name": "Hyuntae KIM",
+        "ko_co": "미래자산",
+        "en_co": "Mirae Asset Global Investments",
+        "item": "Creality",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "오준혁",
+        "en_name": "Junhyuk OH",
+        "ko_co": "미래자산",
+        "en_co": "Mirae Asset Global Investments",
+        "item": "Alibaba",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "오준혁",
+        "en_name": "Junhyuk OH",
+        "ko_co": "미래자산",
+        "en_co": "Mirae Asset Global Investments",
+        "item": "Minimax",
+        "time": "09:00~09:50"
+    },
+    {
+        "ko_name": "오준혁",
+        "en_name": "Junhyuk OH",
+        "ko_co": "미래자산",
+        "en_co": "Mirae Asset Global Investments",
+        "item": "Biren",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "오준혁",
+        "en_name": "Junhyuk OH",
+        "ko_co": "미래자산",
+        "en_co": "Mirae Asset Global Investments",
+        "item": "BrainCo",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "오준혁",
+        "en_name": "Junhyuk OH",
+        "ko_co": "미래자산",
+        "en_co": "Mirae Asset Global Investments",
+        "item": "XREAL",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "오준혁",
+        "en_name": "Junhyuk OH",
+        "ko_co": "미래자산",
+        "en_co": "Mirae Asset Global Investments",
+        "item": "Creality",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "김수진",
+        "en_name": "Soojin KIM",
+        "ko_co": "삼성액티브자산운용",
+        "en_co": "Samsung Active Management",
+        "item": "Alibaba",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "김수진",
+        "en_name": "Soojin KIM",
+        "ko_co": "삼성액티브자산운용",
+        "en_co": "Samsung Active Management",
+        "item": "Minimax",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "김수진",
+        "en_name": "Soojin KIM",
+        "ko_co": "삼성액티브자산운용",
+        "en_co": "Samsung Active Management",
+        "item": "Xiaomi",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "양희찬",
+        "en_name": "Heechan YANG",
+        "ko_co": "삼성액티브자산운용",
+        "en_co": "Samsung Active Management",
+        "item": "Alibaba",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "한동훈",
+        "en_name": "Donghoon HAN",
+        "ko_co": "삼성자산운용",
+        "en_co": "Samsung AM",
+        "item": "Minimax",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "한동훈",
+        "en_name": "Donghoon HAN",
+        "ko_co": "삼성자산운용",
+        "en_co": "Samsung AM",
+        "item": "Momenta",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "한동훈",
+        "en_name": "Donghoon HAN",
+        "ko_co": "삼성자산운용",
+        "en_co": "Samsung AM",
+        "item": "Insta360",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "이성재",
+        "en_name": "Sungjae Lee",
+        "ko_co": "삼성자산운용",
+        "en_co": "Samsung AM",
+        "item": "Alibaba",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "이성재",
+        "en_name": "Sungjae Lee",
+        "ko_co": "삼성자산운용",
+        "en_co": "Samsung AM",
+        "item": "Xiaomi",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "이영진",
+        "en_name": "Youngjin LEE",
+        "ko_co": "삼성증권",
+        "en_co": "Samsung Securities",
+        "item": "Alibaba",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "이종욱",
+        "en_name": "Jongwook LEE",
+        "ko_co": "삼성증권",
+        "en_co": "Samsung Securities",
+        "item": "Alibaba",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "전종규",
+        "en_name": "Jonggyu JEON",
+        "ko_co": "삼성증권",
+        "en_co": "Samsung Securities",
+        "item": "Alibaba",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "조정근",
+        "en_name": "Junggeun CHO",
+        "ko_co": "스팍스자산운용",
+        "en_co": "Sparx AM",
+        "item": "Minimax",
+        "time": "09:00~09:50"
+    },
+    {
+        "ko_name": "조정근",
+        "en_name": "Junggeun CHO",
+        "ko_co": "스팍스자산운용",
+        "en_co": "Sparx AM",
+        "item": "Biren",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "조정근",
+        "en_name": "Junggeun CHO",
+        "ko_co": "스팍스자산운용",
+        "en_co": "Sparx AM",
+        "item": "BrainCo",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "조정근",
+        "en_name": "Junggeun CHO",
+        "ko_co": "스팍스자산운용",
+        "en_co": "Sparx AM",
+        "item": "XREAL",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "조정근",
+        "en_name": "Junggeun CHO",
+        "ko_co": "스팍스자산운용",
+        "en_co": "Sparx AM",
+        "item": "Momenta",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "박선영",
+        "en_name": "Sunyoung PARK",
+        "ko_co": "스팍스자산운용",
+        "en_co": "Sparx AM",
+        "item": "Alibaba",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "박선영",
+        "en_name": "Sunyoung PARK",
+        "ko_co": "스팍스자산운용",
+        "en_co": "Sparx AM",
+        "item": "Minimax",
+        "time": "09:00~09:50"
+    },
+    {
+        "ko_name": "박선영",
+        "en_name": "Sunyoung PARK",
+        "ko_co": "스팍스자산운용",
+        "en_co": "Sparx AM",
+        "item": "Biren",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "박선영",
+        "en_name": "Sunyoung PARK",
+        "ko_co": "스팍스자산운용",
+        "en_co": "Sparx AM",
+        "item": "BrainCo",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "박선영",
+        "en_name": "Sunyoung PARK",
+        "ko_co": "스팍스자산운용",
+        "en_co": "Sparx AM",
+        "item": "Xiaomi",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "서경철",
+        "en_name": "Kyungchul SEO",
+        "ko_co": "스팍스자산운용",
+        "en_co": "Sparx AM",
+        "item": "Minimax",
+        "time": "09:00~09:50"
+    },
+    {
+        "ko_name": "서경철",
+        "en_name": "Kyungchul SEO",
+        "ko_co": "스팍스자산운용",
+        "en_co": "Sparx AM",
+        "item": "Biren",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "서경철",
+        "en_name": "Kyungchul SEO",
+        "ko_co": "스팍스자산운용",
+        "en_co": "Sparx AM",
+        "item": "BrainCo",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "서경철",
+        "en_name": "Kyungchul SEO",
+        "ko_co": "스팍스자산운용",
+        "en_co": "Sparx AM",
+        "item": "XREAL",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "서경철",
+        "en_name": "Kyungchul SEO",
+        "ko_co": "스팍스자산운용",
+        "en_co": "Sparx AM",
+        "item": "Creality",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "박민균",
+        "en_name": "Mingyun PARK",
+        "ko_co": "신만굉원",
+        "en_co": "Shenwan Hongyuan (H.K.) Limited",
+        "item": "Minimax",
+        "time": "09:00~09:50"
+    },
+    {
+        "ko_name": "박민균",
+        "en_name": "Mingyun PARK",
+        "ko_co": "신만굉원",
+        "en_co": "Shenwan Hongyuan (H.K.) Limited",
+        "item": "Biren",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "박민균",
+        "en_name": "Mingyun PARK",
+        "ko_co": "신만굉원",
+        "en_co": "Shenwan Hongyuan (H.K.) Limited",
+        "item": "XREAL",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "박민균",
+        "en_name": "Mingyun PARK",
+        "ko_co": "신만굉원",
+        "en_co": "Shenwan Hongyuan (H.K.) Limited",
+        "item": "Xiaomi",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "박민균",
+        "en_name": "Mingyun PARK",
+        "ko_co": "신만굉원",
+        "en_co": "Shenwan Hongyuan (H.K.) Limited",
+        "item": "Momenta",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "박민균",
+        "en_name": "Mingyun PARK",
+        "ko_co": "신만굉원",
+        "en_co": "Shenwan Hongyuan (H.K.) Limited",
+        "item": "Creality",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "박민균",
+        "en_name": "Mingyun PARK",
+        "ko_co": "신만굉원",
+        "en_co": "Shenwan Hongyuan (H.K.) Limited",
+        "item": "Insta360",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "김청미",
+        "en_name": "Cheongmi KIM",
+        "ko_co": "신한자산운용",
+        "en_co": "Shinhan AM",
+        "item": "Alibaba",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "김청미",
+        "en_name": "Cheongmi KIM",
+        "ko_co": "신한자산운용",
+        "en_co": "Shinhan AM",
+        "item": "Minimax",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "김청미",
+        "en_name": "Cheongmi KIM",
+        "ko_co": "신한자산운용",
+        "en_co": "Shinhan AM",
+        "item": "Biren",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "나진아",
+        "en_name": "Jina NA",
+        "ko_co": "신한자산운용",
+        "en_co": "Shinhan AM",
+        "item": "Alibaba",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "나진아",
+        "en_name": "Jina NA",
+        "ko_co": "신한자산운용",
+        "en_co": "Shinhan AM",
+        "item": "Minimax",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "나진아",
+        "en_name": "Jina NA",
+        "ko_co": "신한자산운용",
+        "en_co": "Shinhan AM",
+        "item": "Biren",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "박필",
+        "en_name": "Pil PARK",
+        "ko_co": "에피파니투자자문",
+        "en_co": "Epiphany Investment Advisory",
+        "item": "Minimax",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "박필",
+        "en_name": "Pil PARK",
+        "ko_co": "에피파니투자자문",
+        "en_co": "Epiphany Investment Advisory",
+        "item": "Biren",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "박필",
+        "en_name": "Pil PARK",
+        "ko_co": "에피파니투자자문",
+        "en_co": "Epiphany Investment Advisory",
+        "item": "Xiaomi",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "김창연",
+        "en_name": "Changyeon KIM",
+        "ko_co": "유리자산",
+        "en_co": "Yurie AM",
+        "item": "Minimax",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "김창연",
+        "en_name": "Changyeon KIM",
+        "ko_co": "유리자산",
+        "en_co": "Yurie AM",
+        "item": "XREAL",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "김창연",
+        "en_name": "Changyeon KIM",
+        "ko_co": "유리자산",
+        "en_co": "Yurie AM",
+        "item": "Momenta",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "노승진",
+        "en_name": "Seungjin NOH",
+        "ko_co": "유리자산",
+        "en_co": "Yurie AM",
+        "item": "Minimax",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "노승진",
+        "en_name": "Seungjin NOH",
+        "ko_co": "유리자산",
+        "en_co": "Yurie AM",
+        "item": "XREAL",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "노승진",
+        "en_name": "Seungjin NOH",
+        "ko_co": "유리자산",
+        "en_co": "Yurie AM",
+        "item": "Momenta",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "나영돈",
+        "en_name": "Youngdon NA",
+        "ko_co": "인피니티글로벌자산",
+        "en_co": "Infinity Global AM",
+        "item": "Minimax",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "나영돈",
+        "en_name": "Youngdon NA",
+        "ko_co": "인피니티글로벌자산",
+        "en_co": "Infinity Global AM",
+        "item": "Biren",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "나영돈",
+        "en_name": "Youngdon NA",
+        "ko_co": "인피니티글로벌자산",
+        "en_co": "Infinity Global AM",
+        "item": "Insta360",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "장지성",
+        "en_name": "Jisung JANG",
+        "ko_co": "조인에셋",
+        "en_co": "JOIN ASSET Global AM",
+        "item": "Minimax",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "장지성",
+        "en_name": "Jisung JANG",
+        "ko_co": "조인에셋",
+        "en_co": "JOIN ASSET Global AM",
+        "item": "Biren",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "장지성",
+        "en_name": "Jisung JANG",
+        "ko_co": "조인에셋",
+        "en_co": "JOIN ASSET Global AM",
+        "item": "XREAL",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "오성진",
+        "en_name": "Sungjin OH",
+        "ko_co": "조인에셋",
+        "en_co": "JOIN ASSET Global AM",
+        "item": "Minimax",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "오성진",
+        "en_name": "Sungjin OH",
+        "ko_co": "조인에셋",
+        "en_co": "JOIN ASSET Global AM",
+        "item": "Biren",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "오성진",
+        "en_name": "Sungjin OH",
+        "ko_co": "조인에셋",
+        "en_co": "JOIN ASSET Global AM",
+        "item": "XREAL",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "하혜진",
+        "en_name": "Hyejin HA",
+        "ko_co": "키움증권",
+        "en_co": "Kiwoom Securities",
+        "item": "Alibaba",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "하혜진",
+        "en_name": "Hyejin HA",
+        "ko_co": "키움증권",
+        "en_co": "Kiwoom Securities",
+        "item": "Minimax",
+        "time": "09:00~09:50"
+    },
+    {
+        "ko_name": "하혜진",
+        "en_name": "Hyejin HA",
+        "ko_co": "키움증권",
+        "en_co": "Kiwoom Securities",
+        "item": "Biren",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "하혜진",
+        "en_name": "Hyejin HA",
+        "ko_co": "키움증권",
+        "en_co": "Kiwoom Securities",
+        "item": "BrainCo",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "하혜진",
+        "en_name": "Hyejin HA",
+        "ko_co": "키움증권",
+        "en_co": "Kiwoom Securities",
+        "item": "XREAL",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "하혜진",
+        "en_name": "Hyejin HA",
+        "ko_co": "키움증권",
+        "en_co": "Kiwoom Securities",
+        "item": "Momenta",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "하혜진",
+        "en_name": "Hyejin HA",
+        "ko_co": "키움증권",
+        "en_co": "Kiwoom Securities",
+        "item": "Insta360",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "강우종",
+        "en_name": "Woojong KANG",
+        "ko_co": "트러스톤자산운용",
+        "en_co": "Truston AM",
+        "item": "Minimax",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "강우종",
+        "en_name": "Woojong KANG",
+        "ko_co": "트러스톤자산운용",
+        "en_co": "Truston AM",
+        "item": "Biren",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "강우종",
+        "en_name": "Woojong KANG",
+        "ko_co": "트러스톤자산운용",
+        "en_co": "Truston AM",
+        "item": "BrainCo",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "강우종",
+        "en_name": "Woojong KANG",
+        "ko_co": "트러스톤자산운용",
+        "en_co": "Truston AM",
+        "item": "XREAL",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "강우종",
+        "en_name": "Woojong KANG",
+        "ko_co": "트러스톤자산운용",
+        "en_co": "Truston AM",
+        "item": "Xiaomi",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "장수현",
+        "en_name": "Soohyun JANG",
+        "ko_co": "하나자산",
+        "en_co": "Hana AM",
+        "item": "Biren",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "장수현",
+        "en_name": "Soohyun JANG",
+        "ko_co": "하나자산",
+        "en_co": "Hana AM",
+        "item": "Momenta",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "장수현",
+        "en_name": "Soohyun JANG",
+        "ko_co": "하나자산",
+        "en_co": "Hana AM",
+        "item": "Insta360",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "진현아",
+        "en_name": "Hyuna JIN",
+        "ko_co": "한국투자신탁운용",
+        "en_co": "Korea Investement Management",
+        "item": "Minimax",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "진현아",
+        "en_name": "Hyuna JIN",
+        "ko_co": "한국투자신탁운용",
+        "en_co": "Korea Investement Management",
+        "item": "Biren",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "진현아",
+        "en_name": "Hyuna JIN",
+        "ko_co": "한국투자신탁운용",
+        "en_co": "Korea Investement Management",
+        "item": "BrainCo",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "진현아",
+        "en_name": "Hyuna JIN",
+        "ko_co": "한국투자신탁운용",
+        "en_co": "Korea Investement Management",
+        "item": "XREAL",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "진현아",
+        "en_name": "Hyuna JIN",
+        "ko_co": "한국투자신탁운용",
+        "en_co": "Korea Investement Management",
+        "item": "Xiaomi",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "진현아",
+        "en_name": "Hyuna JIN",
+        "ko_co": "한국투자신탁운용",
+        "en_co": "Korea Investement Management",
+        "item": "Momenta",
+        "time": "09:00~09:50"
+    },
+    {
+        "ko_name": "진현아",
+        "en_name": "Hyuna JIN",
+        "ko_co": "한국투자신탁운용",
+        "en_co": "Korea Investement Management",
+        "item": "Insta360",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "김진성",
+        "en_name": "Jinsung KIM",
+        "ko_co": "한화손해보험",
+        "en_co": "Hanwha General Insurance",
+        "item": "Alibaba",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "박성걸",
+        "en_name": "Sunggeol PARK",
+        "ko_co": "한화자산",
+        "en_co": "Hanwha AM",
+        "item": "Alibaba",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "박성걸",
+        "en_name": "Sunggeol PARK",
+        "ko_co": "한화자산",
+        "en_co": "Hanwha AM",
+        "item": "Minimax",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "박성걸",
+        "en_name": "Sunggeol PARK",
+        "ko_co": "한화자산",
+        "en_co": "Hanwha AM",
+        "item": "Biren",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "박성걸",
+        "en_name": "Sunggeol PARK",
+        "ko_co": "한화자산",
+        "en_co": "Hanwha AM",
+        "item": "XREAL",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "박성걸",
+        "en_name": "Sunggeol PARK",
+        "ko_co": "한화자산",
+        "en_co": "Hanwha AM",
+        "item": "Momenta",
+        "time": "09:00~09:50"
+    },
+    {
+        "ko_name": "박성걸",
+        "en_name": "Sunggeol PARK",
+        "ko_co": "한화자산",
+        "en_co": "Hanwha AM",
+        "item": "Creality",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "박성걸",
+        "en_name": "Sunggeol PARK",
+        "ko_co": "한화자산",
+        "en_co": "Hanwha AM",
+        "item": "Insta360",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "박진섭",
+        "en_name": "Jinseob PARK",
+        "ko_co": "미래에셋생명",
+        "en_co": "Mirae Asset Insurance",
+        "item": "Alibaba",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "박진섭",
+        "en_name": "Jinseob PARK",
+        "ko_co": "미래에셋생명",
+        "en_co": "Mirae Asset Insurance",
+        "item": "Minimax",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "박진섭",
+        "en_name": "Jinseob PARK",
+        "ko_co": "미래에셋생명",
+        "en_co": "Mirae Asset Insurance",
+        "item": "Biren",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "박진섭",
+        "en_name": "Jinseob PARK",
+        "ko_co": "미래에셋생명",
+        "en_co": "Mirae Asset Insurance",
+        "item": "Xiaomi",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "조민영",
+        "en_name": "Minyoung CHO",
+        "ko_co": "미래에셋생명",
+        "en_co": "Mirae Asset Insurance",
+        "item": "Alibaba",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "조민영",
+        "en_name": "Minyoung CHO",
+        "ko_co": "미래에셋생명",
+        "en_co": "Mirae Asset Insurance",
+        "item": "Minimax",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "조민영",
+        "en_name": "Minyoung CHO",
+        "ko_co": "미래에셋생명",
+        "en_co": "Mirae Asset Insurance",
+        "item": "Xiaomi",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "조민영",
+        "en_name": "Minyoung CHO",
+        "ko_co": "미래에셋생명",
+        "en_co": "Mirae Asset Insurance",
+        "item": "Creality",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "홍세원",
+        "en_name": "Sewon HONG",
+        "ko_co": "스팍스자산운용",
+        "en_co": "Sparx AM",
+        "item": "Momenta",
+        "time": "09:00~09:50"
+    },
+    {
+        "ko_name": "홍세원",
+        "en_name": "Sewon HONG",
+        "ko_co": "스팍스자산운용",
+        "en_co": "Sparx AM",
+        "item": "Creality",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "홍세원",
+        "en_name": "Sewon HONG",
+        "ko_co": "스팍스자산운용",
+        "en_co": "Sparx AM",
+        "item": "Insta360",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "임성연",
+        "en_name": "Sungyun YIM",
+        "ko_co": "한국투자공사 (KIC)",
+        "en_co": "Korea Investement Corporation",
+        "item": "Alibaba",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "임성연",
+        "en_name": "Sungyun YIM",
+        "ko_co": "한국투자공사 (KIC)",
+        "en_co": "Korea Investement Corporation",
+        "item": "Minimax",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "임성연",
+        "en_name": "Sungyun YIM",
+        "ko_co": "한국투자공사 (KIC)",
+        "en_co": "Korea Investement Corporation",
+        "item": "Biren",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "류경",
+        "en_name": "Ryu Kyung",
+        "ko_co": "하나증권",
+        "en_co": "Hana Securities",
+        "item": "Minimax",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "류경",
+        "en_name": "Ryu Kyung",
+        "ko_co": "하나증권",
+        "en_co": "Hana Securities",
+        "item": "Biren",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "류경",
+        "en_name": "Ryu Kyung",
+        "ko_co": "하나증권",
+        "en_co": "Hana Securities",
+        "item": "XREAL",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "류경",
+        "en_name": "Ryu Kyung",
+        "ko_co": "하나증권",
+        "en_co": "Hana Securities",
+        "item": "Xiaomi",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "이기현",
+        "en_name": "Gihyun Lee",
+        "ko_co": "하나증권",
+        "en_co": "Hana Securities",
+        "item": "Minimax",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "이기현",
+        "en_name": "Gihyun Lee",
+        "ko_co": "하나증권",
+        "en_co": "Hana Securities",
+        "item": "Biren",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "이기현",
+        "en_name": "Gihyun Lee",
+        "ko_co": "하나증권",
+        "en_co": "Hana Securities",
+        "item": "XREAL",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "이기현",
+        "en_name": "Gihyun Lee",
+        "ko_co": "하나증권",
+        "en_co": "Hana Securities",
+        "item": "Xiaomi",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "김지은",
+        "en_name": "Jieun KIM",
+        "ko_co": "롯데손해보험",
+        "en_co": "Lotte General Insurance",
+        "item": "Minimax",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "김지은",
+        "en_name": "Jieun KIM",
+        "ko_co": "롯데손해보험",
+        "en_co": "Lotte General Insurance",
+        "item": "Xiaomi",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "김제호",
+        "en_name": "Jaeho KIM",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Biren",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "김제호",
+        "en_name": "Jaeho KIM",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Xiaomi",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "심주현",
+        "en_name": "Juhyun SIM",
+        "ko_co": "삼성액티브자산운용",
+        "en_co": "Samsung Active Management",
+        "item": "Alibaba",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "심주현",
+        "en_name": "Juhyun SIM",
+        "ko_co": "삼성액티브자산운용",
+        "en_co": "Samsung Active Management",
+        "item": "Xiaomi",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "고현중",
+        "en_name": "Hyunjung GO",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Biren",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "김주연",
+        "en_name": "Jooyeon KIM",
+        "ko_co": "비아트론",
+        "en_co": "VIATRON",
+        "item": "Biren",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "이옥규",
+        "en_name": "Mark Lee",
+        "ko_co": "리드캐피탈매니지먼트",
+        "en_co": "Read Capital Management",
+        "item": "Biren",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "오민수",
+        "en_name": "Minsoo OH",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Biren",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "오민수",
+        "en_name": "Minsoo OH",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Insta360",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "정현석",
+        "en_name": "Hyunsuk JUNG",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Biren",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "정현석",
+        "en_name": "Hyunsuk JUNG",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "BrainCo",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "소연홍",
+        "en_name": "Chloe SU",
+        "ko_co": "SK 네트웍스",
+        "en_co": "SK networks",
+        "item": "BrainCo",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "최대영",
+        "en_name": "John CHOI",
+        "ko_co": "SK 네트웍스",
+        "en_co": "SK networks",
+        "item": "BrainCo",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "Elisa",
+        "en_name": "Elisa",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "BrainCo",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "최선주",
+        "en_name": "Seon Joo CHOI",
+        "ko_co": "미래자산",
+        "en_co": "Mirae Asset Global Investments",
+        "item": "XREAL",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "이민규",
+        "en_name": "Mingyu LEE",
+        "ko_co": "에셋플러스자산",
+        "en_co": "AssetPlus Management",
+        "item": "Alibaba",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "이민규",
+        "en_name": "Mingyu LEE",
+        "ko_co": "에셋플러스자산",
+        "en_co": "AssetPlus Management",
+        "item": "Minimax",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "이민규",
+        "en_name": "Mingyu LEE",
+        "ko_co": "에셋플러스자산",
+        "en_co": "AssetPlus Management",
+        "item": "Biren",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "이민규",
+        "en_name": "Mingyu LEE",
+        "ko_co": "에셋플러스자산",
+        "en_co": "AssetPlus Management",
+        "item": "BrainCo",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "이민규",
+        "en_name": "Mingyu LEE",
+        "ko_co": "에셋플러스자산",
+        "en_co": "AssetPlus Management",
+        "item": "XREAL",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "이민규",
+        "en_name": "Mingyu LEE",
+        "ko_co": "에셋플러스자산",
+        "en_co": "AssetPlus Management",
+        "item": "Xiaomi",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "이민규",
+        "en_name": "Mingyu LEE",
+        "ko_co": "에셋플러스자산",
+        "en_co": "AssetPlus Management",
+        "item": "Momenta",
+        "time": "09:00~09:50"
+    },
+    {
+        "ko_name": "이호년",
+        "en_name": "Honeon LEE",
+        "ko_co": "미래자산",
+        "en_co": "Mirae Asset Global Investments",
+        "item": "Alibaba",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "이호년",
+        "en_name": "Honeon LEE",
+        "ko_co": "미래자산",
+        "en_co": "Mirae Asset Global Investments",
+        "item": "Minimax",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "이호년",
+        "en_name": "Honeon LEE",
+        "ko_co": "미래자산",
+        "en_co": "Mirae Asset Global Investments",
+        "item": "Biren",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "이호년",
+        "en_name": "Honeon LEE",
+        "ko_co": "미래자산",
+        "en_co": "Mirae Asset Global Investments",
+        "item": "BrainCo",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "이호년",
+        "en_name": "Honeon LEE",
+        "ko_co": "미래자산",
+        "en_co": "Mirae Asset Global Investments",
+        "item": "Xiaomi",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "이호년",
+        "en_name": "Honeon LEE",
+        "ko_co": "미래자산",
+        "en_co": "Mirae Asset Global Investments",
+        "item": "Creality",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "오온수",
+        "en_name": "Onsu OH",
+        "ko_co": "KB증권",
+        "en_co": "KB Securities",
+        "item": "Biren",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "오온수",
+        "en_name": "Onsu OH",
+        "ko_co": "KB증권",
+        "en_co": "KB Securities",
+        "item": "BrainCo",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "장수범",
+        "en_name": "Subeom JANG",
+        "ko_co": "KB증권",
+        "en_co": "KB Securities",
+        "item": "Biren",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "장수범",
+        "en_name": "Subeom JANG",
+        "ko_co": "KB증권",
+        "en_co": "KB Securities",
+        "item": "BrainCo",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "강효주",
+        "en_name": "Hyojoo Kang",
+        "ko_co": "국민연금",
+        "en_co": "NPS",
+        "item": "Alibaba",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "강효주",
+        "en_name": "Hyojoo Kang",
+        "ko_co": "국민연금",
+        "en_co": "NPS",
+        "item": "Minimax",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "강효주",
+        "en_name": "Hyojoo Kang",
+        "ko_co": "국민연금",
+        "en_co": "NPS",
+        "item": "Biren",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "RYAN",
+        "en_name": "RYAN",
+        "ko_co": "Company H",
+        "en_co": "Company H",
+        "item": "Biren",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "RYAN",
+        "en_name": "RYAN",
+        "ko_co": "Company H",
+        "en_co": "Company H",
+        "item": "BrainCo",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "RYAN",
+        "en_name": "RYAN",
+        "ko_co": "Company H",
+        "en_co": "Company H",
+        "item": "Creality",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "Scott",
+        "en_name": "Scott",
+        "ko_co": "Company H",
+        "en_co": "Company H",
+        "item": "BrainCo",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "Scott",
+        "en_name": "Scott",
+        "ko_co": "Company H",
+        "en_co": "Company H",
+        "item": "Creality",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "최창우",
+        "en_name": "Changwoo CHOI",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Xiaomi",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "최창우",
+        "en_name": "Changwoo CHOI",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Momenta",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "최창우",
+        "en_name": "Changwoo CHOI",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Insta360",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "김경미",
+        "en_name": "Kyoungmi KIM",
+        "ko_co": "더레드우즈",
+        "en_co": "theREDWOODs",
+        "item": "Minimax",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "김경미",
+        "en_name": "Kyoungmi KIM",
+        "ko_co": "더레드우즈",
+        "en_co": "theREDWOODs",
+        "item": "BrainCo",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "김경미",
+        "en_name": "Kyoungmi KIM",
+        "ko_co": "더레드우즈",
+        "en_co": "theREDWOODs",
+        "item": "Xiaomi",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "김경미",
+        "en_name": "Kyoungmi KIM",
+        "ko_co": "더레드우즈",
+        "en_co": "theREDWOODs",
+        "item": "Momenta",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "김경미",
+        "en_name": "Kyoungmi KIM",
+        "ko_co": "더레드우즈",
+        "en_co": "theREDWOODs",
+        "item": "Insta360",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "최유진",
+        "en_name": "Eugene CHOI",
+        "ko_co": "KB증권",
+        "en_co": "KB Securities",
+        "item": "Minimax",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "최유진",
+        "en_name": "Eugene CHOI",
+        "ko_co": "KB증권",
+        "en_co": "KB Securities",
+        "item": "Xiaomi",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "장수범",
+        "en_name": "Subum Jang",
+        "ko_co": "KB증권",
+        "en_co": "KB Securities",
+        "item": "Minimax",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "장수범",
+        "en_name": "Subum Jang",
+        "ko_co": "KB증권",
+        "en_co": "KB Securities",
+        "item": "Xiaomi",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "이재현",
+        "en_name": "Jaehyun Lee",
+        "ko_co": "레인메이커자산운용",
+        "en_co": "RAINMAKER",
+        "item": "Xiaomi",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "이재현",
+        "en_name": "Jaehyun Lee",
+        "ko_co": "레인메이커자산운용",
+        "en_co": "RAINMAKER",
+        "item": "Momenta",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "이재현",
+        "en_name": "Jaehyun Lee",
+        "ko_co": "레인메이커자산운용",
+        "en_co": "RAINMAKER",
+        "item": "Creality",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "이재현",
+        "en_name": "Jaehyun Lee",
+        "ko_co": "레인메이커자산운용",
+        "en_co": "RAINMAKER",
+        "item": "Insta360",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "김기호",
+        "en_name": "Kiho KIM",
+        "ko_co": "인벡스자산운용",
+        "en_co": "INVEX",
+        "item": "Biren",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "김기호",
+        "en_name": "Kiho KIM",
+        "ko_co": "인벡스자산운용",
+        "en_co": "INVEX",
+        "item": "Xiaomi",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "김종범",
+        "en_name": "Jongbum KIM",
+        "ko_co": "Mint Investment",
+        "en_co": "Mint Investment",
+        "item": "Xiaomi",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "김종범",
+        "en_name": "Jongbum KIM",
+        "ko_co": "Mint Investment",
+        "en_co": "Mint Investment",
+        "item": "Momenta",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "이상엽",
+        "en_name": "Sangyeup LEE",
+        "ko_co": "Mint Investment",
+        "en_co": "Mint Investment",
+        "item": "Xiaomi",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "이상엽",
+        "en_name": "Sangyeup LEE",
+        "ko_co": "Mint Investment",
+        "en_co": "Mint Investment",
+        "item": "Momenta",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "남태규",
+        "en_name": "Taegyu NAM",
+        "ko_co": "YG Investment",
+        "en_co": "YG Investment",
+        "item": "Xiaomi",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "남태규",
+        "en_name": "Taegyu NAM",
+        "ko_co": "YG Investment",
+        "en_co": "YG Investment",
+        "item": "Insta360",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "김건",
+        "en_name": "Gun KIM",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Momenta",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "김건",
+        "en_name": "Gun KIM",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Creality",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "김건",
+        "en_name": "Gun KIM",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Insta360",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "장윤석",
+        "en_name": "Yoonseok CHANG",
+        "ko_co": "국민연금",
+        "en_co": "NPS",
+        "item": "Alibaba",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "장윤석",
+        "en_name": "Yoonseok CHANG",
+        "ko_co": "국민연금",
+        "en_co": "NPS",
+        "item": "Minimax",
+        "time": "14:30~15:20"
+    },
+    {
+        "ko_name": "장윤석",
+        "en_name": "Yoonseok CHANG",
+        "ko_co": "국민연금",
+        "en_co": "NPS",
+        "item": "Biren",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "장윤석",
+        "en_name": "Yoonseok CHANG",
+        "ko_co": "국민연금",
+        "en_co": "NPS",
+        "item": "BrainCo",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "장윤석",
+        "en_name": "Yoonseok CHANG",
+        "ko_co": "국민연금",
+        "en_co": "NPS",
+        "item": "Xiaomi",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "장윤석",
+        "en_name": "Yoonseok CHANG",
+        "ko_co": "국민연금",
+        "en_co": "NPS",
+        "item": "Momenta",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "원종훈",
+        "en_name": "Jonghoon WON",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "XREAL",
+        "time": "10:00~10:50"
+    },
+    {
+        "ko_name": "원종훈",
+        "en_name": "Jonghoon WON",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Momenta",
+        "time": "11:00~11:50"
+    },
+    {
+        "ko_name": "윤지선",
+        "en_name": "Jiseon YOON",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Momenta",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "윤지선",
+        "en_name": "Jiseon YOON",
+        "ko_co": "미래에셋증권",
+        "en_co": "Mirae Asset Securities",
+        "item": "Insta360",
+        "time": "15:30~16:20"
+    },
+    {
+        "ko_name": "조형진",
+        "en_name": "Hyungjin JO",
+        "ko_co": "SK 네트웍스",
+        "en_co": "SK networks",
+        "item": "BrainCo",
+        "time": "16:30~17:20"
+    },
+    {
+        "ko_name": "김형진",
+        "en_name": "Hyungjin KIM",
+        "ko_co": "유안타증권",
+        "en_co": "Yuanta Securities Korea",
+        "item": "BrainCo",
+        "time": "13:30~14:20"
+    },
+    {
+        "ko_name": "김형진",
+        "en_name": "Hyungjin KIM",
+        "ko_co": "유안타증권",
+        "en_co": "Yuanta Securities Korea",
+        "item": "Momenta",
+        "time": "14:30~15:20"
+    }
+];
+
+        function renderSchedule() {
+            const input = document.getElementById('userName').value.trim().toLowerCase();
+            if(!input) return;
+
+            const filtered = MASTER_DATA.filter(d => 
+                d.ko_name === input || d.en_name.toLowerCase() === input
+            ).sort((a,b) => a.time.localeCompare(b.time));
+
+            if (filtered.length === 0) {
+                alert("등록된 스케줄이 없습니다.");
+                return;
+            }
+
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('schedule-section').classList.remove('hidden');
+            
+            const user = filtered[0];
+            document.getElementById('display-name').innerText = `${user.ko_name} (${user.en_name})`;
+            document.getElementById('display-co').innerText = `${user.ko_co} | ${user.en_co}`;
+
+            let html = '';
+            filtered.forEach(item => {
+                html += `
+                    <div class="flex items-center p-4 bg-gray-50 rounded-2xl border border-gray-100 shadow-sm">
+                        <div class="w-24 text-sm font-bold text-gray-400 border-r border-gray-200 mr-4">${item.time}</div>
+                        <div class="flex-1">
+                            <div class="text-xs text-blue-500 font-bold mb-1">Meeting with</div>
+                            <div class="text-lg font-black text-gray-800">${item.item}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('schedule-list').innerHTML = html;
+        }
+
+        function saveAsImage() {
+            const area = document.getElementById('capture-area');
+            html2canvas(area, { backgroundColor: '#f3f4f6', scale: 2 }).then(canvas => {
+                canvas.toBlob(blob => saveAs(blob, `ChinaDay_Schedule_${document.getElementById('display-name').innerText}.png`));
+            });
+        }
+
+        function exportToICS() {
+            const input = document.getElementById('userName').value.trim();
+            const filtered = MASTER_DATA.filter(d => d.ko_name === input || d.en_name === input);
+            
+            let ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Mirae Asset//China Day 2026//KO\n";
+            filtered.forEach(item => {
+                const start = item.time.split('~')[0].replace(':','') + "00";
+                const end = item.time.split('~')[1].replace(':','') + "00";
+                ics += `BEGIN:VEVENT\nSUMMARY:[China Day] Meeting with ${item.item}\nDTSTART:20260409T${start}\nDTEND:20260409T${end}\nLOCATION:Meeting Room\nEND:VEVENT\n`;
+            });
+            ics += "END:VCALENDAR";
+            
+            const blob = new Blob([ics], {type: "text/calendar;charset=utf-8"});
+            saveAs(blob, "ChinaDay_Schedule.ics");
+        }
+    </script>
+</body>
+</html>
